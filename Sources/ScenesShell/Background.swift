@@ -1,6 +1,6 @@
 import Scenes
 import Igis
-
+thats unfortunate we should not have do do something as complicated as this just to share our code/randonm bruh
   /*
      This class is responsible for rendering the background.
    */
