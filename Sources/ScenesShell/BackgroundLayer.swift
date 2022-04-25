@@ -7,7 +7,7 @@ import Scenes
 
 
 class BackgroundLayer : Layer {
-      let background = Background()
+      let background = MainSceneBackground()
 
       init() {
           // Using a meaningful name can be helpful for debugging

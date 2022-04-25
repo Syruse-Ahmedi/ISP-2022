@@ -13,13 +13,12 @@ class InteractionLayer : Layer {
     let rightButton = Button(rect:Rect(size:Size(width:200, height: 100)))
     let leftButton = Button(rect:Rect(size:Size(width:200, height: 100)))
 
-    let background = Background()
     init() {
           // Using a meaningful name can be helpful for debugging
         super.init(name:"Interaction")
         
         // We insert our RenderableEntities in the constructor
-        insert(entity: upButton, at: .front)
+       insert(entity: upButton, at: .front)
         insert(entity: downButton, at: .front)
         insert(entity: rightButton, at: .front)
         insert(entity: leftButton, at: .front)
@@ -34,13 +33,5 @@ class InteractionLayer : Layer {
         
     }
 
-    override func preCalculate(canvas: Canvas){
-//        let upBoundingRect = upButton.boundingRect()
-  //      let downBoundingRect = downButton.boundingRect()
-    //    let leftBoundingRect = leftButton.boundingRect()
-      //  let rightBoundingRect = rightButton.boundingRect()
-
-    //    let mouseBoundingRect = background.boundingRect()
-    }
     
 }
