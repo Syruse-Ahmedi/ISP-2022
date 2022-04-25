@@ -8,7 +8,7 @@ class Button: RenderableEntity{
     
     init(rect:Rect){
 
-        button = Rectangle(rect:rect, fillMode:.fillAndStroke)
+        button = Rectangle(rect:rect, fillMode:.clear)
         super.init(name:"Background")
     }
 
@@ -17,10 +17,7 @@ class Button: RenderableEntity{
     }
 
     override func render(canvas:Canvas){
-        let strokeStyle = StrokeStyle(color:Color(.white))
-        let fillStyle = FillStyle(color:Color(.black))
-        let lineWidth = LineWidth(width:3)
-        canvas.render(strokeStyle, fillStyle, lineWidth, button)
+        canvas.render(button)
     }
     override func boundingRect() -> Rect{
         return button.rect
