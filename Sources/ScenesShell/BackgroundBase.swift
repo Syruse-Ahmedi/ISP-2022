@@ -48,7 +48,7 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
     var downScene = 1
     var leftScene = 1
     var rightScene = 1
-
+    
     //current scene on display
     var currentScene = 1
     var didRender = false
@@ -98,16 +98,8 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
         canvas.render(FillStyle(color:Color(.white)))
         canvas.render(text)
     }
-    func onEntityMouseClick(globalLocation:Point){
-        mousePoint.center = globalLocation
-        didRender = false
-    }
 
     override func setup(canvasSize:Size, canvas:Canvas){
-        dispatcher.registerEntityMouseClickHandler(handler:self)
-
-        rect = Rect(size:canvasSize)
-
         canvas.setup(rightArrows)
         canvas.setup(leftArrows)
         canvas.setup(upArrows)
@@ -115,54 +107,64 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
 
         // Set up all images
         canvas.setup(BackgroundBase.images[currentSceneName]!)
+        dispatcher.registerEntityMouseClickHandler(handler:self)
+        rect = Rect(size:canvasSize)
     }
-
+    
+    override func teardown(){
+        dispatcher.unregisterEntityMouseClickHandler(handler:self)
+    }
+    
+    func onEntityMouseClick(globalLocation:Point){
+        mousePoint.center = globalLocation
+        print(globalLocation)
+    }
+    
+    
     override func render(canvas:Canvas){
         if let canvasSize = canvas.canvasSize, !didRender{
-
+            
              //change of scenes
-             switch (currentScene){
+             switch currentScene{
              case 1:
                  if BackgroundBase.images[currentSceneName]!.isReady{
-                     BackgroundBase.images[currentSceneName]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0),
-                                                                  size:canvasSize))
+                     BackgroundBase.images[currentSceneName]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
                      canvas.render(BackgroundBase.images[currentSceneName]!)
                  }
-               
                  if rightArrows.isReady{
-                    rightArrows.renderMode = .destinationRect(Rect(topLeft:Point(x:780, y:670),
+                     rightArrows.renderMode = .destinationRect(Rect(topLeft:Point(x:780, y:670),
                                                                     size:Size(width:300, height:130)))
-                    canvas.render(rightArrows)
-                    rightScene = 2
-                }
+                     canvas.render(rightArrows)
+                     rightButton.move(to:Point(x:780, y:670))
+                     rightScene = 2
+                 }
                  if leftArrows.isReady{
                      leftArrows.renderMode = .destinationRect(Rect(topLeft:Point(x:100, y:770),
                                                                   size:Size(width:200, height:130)))
                      canvas.render(leftArrows)
+                     leftButton.move(to:Point(x:100, y:770))
                      leftScene = 0
                  }
+                 
                  renderText(to:canvas, x:860, y:746, text:"Play/Enter")
                  renderText(to:canvas, x:140, y:840, text:"Exit/Leave")
-                
-                 rightButton.move(to:Point(x:780, y:670))
-                 leftButton.move(to:Point(x:100, y:770))
+                 
              case 2:
-                 currentSceneName = SceneName.entrance 
+                 currentSceneName = SceneName.entrance
+                 print(currentSceneName)
                  if BackgroundBase.images[currentSceneName]!.isReady{
-                     BackgroundBase.images[currentSceneName]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0),
-                                                                  size:canvasSize))
+                     BackgroundBase.images[currentSceneName]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
                      canvas.render(BackgroundBase.images[currentSceneName]!)
                  }
              default:
                  fatalError("Unexpected Scene")
              }
-            
+             
         }
     }
     
     override func calculate(canvasSize:Size){
         //containments 
-        
         let mouseBounding = Rect(topLeft:Point(x:mousePoint.center.x-mousePoint.radiusX, y:mousePoint.center.y-mousePoint.radiusY), size:Size(width:mousePoint.radiusX*2, height:mousePoint.radiusY*2))
 
         let leftBounding = leftButton.boundingRect()
@@ -175,34 +177,38 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
         let upContainment = upBounding.containment(target:mouseBounding)
         let downContainment = downBounding.containment(target:mouseBounding)
 
-        let boundingSubset : ContainmentSet = [.overlapsRight, .overlapsLeft, .overlapsTop,
-                                               .overlapsBottom, .contact]
+        let boundingSubset : ContainmentSet = [ .contact]
 
         if boundingSubset.isSubset(of:leftContainment){
             currentScene = leftScene
+            mousePoint.center = Point(x:0,y:0)
+
         }
         if boundingSubset.isSubset(of:rightContainment){
             currentScene = rightScene
+            print(currentScene)
+            mousePoint.center = Point(x:0,y:0)
         }
         if boundingSubset.isSubset(of:upContainment){
             currentScene = upScene
+            mousePoint.center = Point(x:0,y:0)
+
         }
         if boundingSubset.isSubset(of:downContainment){
             currentScene = downScene
+            mousePoint.center = Point(x:0,y:0)
+
         }
-
-                    
     }
     
-    override func teardown(){
-        dispatcher.unregisterEntityMouseClickHandler(handler:self)
+    override func boundingRect() -> Rect{
+        if let rect = rect{
+            return rect
+        }
+        else{
+            return Rect()
+        }
     }
-    
-    //    override func boundingRect() -> Rect{
-
-    //      return bounding
-    //    }
-
 }
 
 
