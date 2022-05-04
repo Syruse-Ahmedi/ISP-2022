@@ -5,7 +5,7 @@ import Igis
 class Button: RenderableEntity{
 
     var button: Rectangle
-    var shouldShow = true
+
     
     init(rect:Rect){
 
@@ -18,10 +18,9 @@ class Button: RenderableEntity{
     }
 
     override func render(canvas:Canvas){
-        if shouldShow {
-            canvas.render(button)
-        }
+        canvas.render(button)
     }
+
     override func boundingRect() -> Rect{
         return button.rect
     }

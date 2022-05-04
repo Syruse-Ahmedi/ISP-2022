@@ -96,14 +96,14 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
     var downScene = 1
     var leftScene = 1
     var rightScene = 1
-    
+
     //current scene on display
     var currentScene = 1
     var didRender = false
     var rect: Rect?
 
     //size of the button use for interactions
-    let upButton = Button(rect:Rect(size:Size(width:50, height: 100)))
+    let upButton = Button(rect:Rect(size:Size(width:100, height: 150)))
     let downButton = Button(rect:Rect(size:Size(width:50, height: 100)))
     let rightButton = Button(rect:Rect(size:Size(width:250, height: 130)))
     let leftButton = Button(rect:Rect(size:Size(width:250, height: 130)))
@@ -114,7 +114,7 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
 
     //time left in the game
     var time = 6000
-    var mousePoint = Ellipse(center:Point(x:0, y:0), radiusX:1, radiusY:1, fillMode:.clear)
+    var mousePoint = Ellipse(center:Point(x:9999, y:9999), radiusX:1, radiusY:1, fillMode:.clear)
     
     init() {
         
@@ -157,11 +157,6 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
         let text = Text(location:Point(x:1600, y: 100), text:"artifact collected: \(Collected)")
         canvas.render(text)
     }
-
-    func renderTime(to canvas:Canvas, time:Int){
-        let text = Text(location:Point(x:1600, y: 50), text:"time left: \(time)")
-        canvas.render(text)
-    }
     
     override func setup(canvasSize:Size, canvas:Canvas){
         canvas.setup(rightArrows)
@@ -187,102 +182,46 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
         didRender = false
     }
 
-    func renderArrows(canvas:Canvas, leftArrow:Bool, rightArrow:Bool, downArrow:Bool, upArrow:Bool, leftLocation:Point,
+    func renderArrows(to canvas:Canvas, leftArrow:Bool, rightArrow:Bool, downArrow:Bool, upArrow:Bool, leftLocation:Point,
                       rightLocation:Point, upLocation:Point, downLocation:Point){
         if rightArrow{
             if rightArrows.isReady{
                 rightArrows.renderMode = .destinationRect(Rect(topLeft:rightLocation, size:Size(width:300, height:130)))
                 canvas.render(rightArrows)
-                rightButton.move(to:rightLocation)
             }
         }
+        rightButton.move(to:rightLocation)
         if leftArrow{
             if leftArrows.isReady{
                 leftArrows.renderMode = .destinationRect(Rect(topLeft:leftLocation, size:Size(width:200, height:130)))
                 canvas.render(leftArrows)
-                leftButton.move(to:leftLocation)
             }
         }
+        leftButton.move(to:leftLocation)
         if upArrow{
             if upArrows.isReady{
                 upArrows.renderMode = .destinationRect(Rect(topLeft:upLocation, size:Size(width:130, height:200)))
                 canvas.render(upArrows)
-                leftButton.move(to:upLocation)
             }
         }
+        upButton.move(to:upLocation)
         if downArrow{
             if downArrows.isReady{
                 downArrows.renderMode = .destinationRect(Rect(topLeft:downLocation, size:Size(width:130, height:200)))
                 canvas.render(downArrows)
-                leftButton.move(to:downLocation)
             }
         }
+        downButton.move(to:downLocation)
     }
-    override func render(canvas:Canvas){
-        if let canvasSize = canvas.canvasSize, !didRender{
-            //change of scenes
-            let clearRect = Rect(topLeft:Point(x:0, y:0), size:canvasSize)
-            let clearRectangle = Rectangle(rect:clearRect, fillMode:.clear)
-            canvas.render(clearRectangle)
-            
-
-            
-            switch (currentScene){
-            case 1:
-                if BackgroundBase.images[currentSceneName]!.isReady{
-                    BackgroundBase.images[currentSceneName]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
-                    canvas.render(BackgroundBase.images[currentSceneName]!)
-                }
-                renderArrows(canvas:canvas, leftArrow:true, rightArrow:true, downArrow:false, upArrow:false, leftLocation:Point(x:100, y:770),
-                             rightLocation:Point(x:780, y:670), upLocation:Point(x:0, y:0), downLocation:Point(x:0, y:0))
-                
-                rightScene = 2
-                renderText(to:canvas, x:860, y:746, text:"Play/Enter")
-                
-                leftScene = 0 
-                renderText(to:canvas, x:140, y:840, text:"Exit/Leave")
-                
-                
-            case 2:
-                currentSceneName = SceneName.entrance
-                canvas.render(BackgroundBase.images[currentSceneName]!)
-                rightScene = 8
-                upScene = 3
-                
-                renderLabel(to:canvas)
-                
-            case 3:
-                currentSceneName = SceneName.basementEntrance
-                renderArrows(canvas:canvas, leftArrow:false, rightArrow:false, downArrow:false, upArrow:false, leftLocation:Point(x:100, y:770),
-                             rightLocation:Point(x:780, y:670), upLocation:Point(x:900, y:100), downLocation:Point(x:0, y:0))
-                
-            case 4:
-                currentSceneName = SceneName.basementHall
-            case 5:
-                currentSceneName = SceneName.artifactRoom
-                
-            case 6:
-                currentSceneName = SceneName.exitHall
-            case 7:  
-                currentSceneName = SceneName.randomRoom
-            case 8:
-                currentSceneName = SceneName.rightEntrance 
-            default:
-                fatalError("Unexpected Scene")
-                
-            }
-        }
         
-    }
-    
-    
+        
     override func calculate(canvasSize:Size){ 
         if currentScene > 1{
             time -= 1
         }
         //containments 
         let mouseBounding = Rect(topLeft:Point(x:mousePoint.center.x-mousePoint.radiusX, y:mousePoint.center.y-mousePoint.radiusY), size:Size(width:mousePoint.radiusX*2, height:mousePoint.radiusY*2))
-        
+                    
         let leftBounding = leftButton.boundingRect()
         let rightBounding = rightButton.boundingRect()
         let downBounding = downButton.boundingRect()
@@ -298,25 +237,93 @@ class BackgroundBase : RenderableEntity, EntityMouseClickHandler {
         let boundingSubset : ContainmentSet = [ .contact]
 
         if boundingSubset.isSubset(of:leftContainment){
+            mousePoint.center = Point(x:9999,y:9999)
             currentScene = leftScene
-            mousePoint.center = Point(x:0,y:0)
-        }
-        if boundingSubset.isSubset(of:rightContainment){
-            currentScene = rightScene
-            mousePoint.center = Point(x:0,y:0)
-        }
-        if boundingSubset.isSubset(of:upContainment){
-            currentScene = upScene
-            mousePoint.center = Point(x:0,y:0)
 
         }
-        if boundingSubset.isSubset(of:downContainment){
-            currentScene = downScene
-            mousePoint.center = Point(x:0,y:0)
+        else if boundingSubset.isSubset(of:rightContainment){
+            mousePoint.center = Point(x:9999,y:9999)
+            currentScene = rightScene
+
         }
-        if boundingSubset.isSubset(of:artifactContainment){
+        else if boundingSubset.isSubset(of:upContainment){
+            mousePoint.center = Point(x:9999,y:9999)
+            currentScene = upScene
+        }
+        else if boundingSubset.isSubset(of:downContainment){
+            mousePoint.center = Point(x:9999,y:9999)
+            currentScene = downScene
+
+        }
+        else if boundingSubset.isSubset(of:artifactContainment){
             currentScene += 0
         }
+        else{
+            currentScene += 0
+        }
+    }
+     
+    override func render(canvas:Canvas){
+        if let canvasSize = canvas.canvasSize, !didRender{
+            //change of scenes
+            
+            switch currentScene{
+            case 1:
+                if BackgroundBase.images[SceneName.outdoorHouse]!.isReady{
+                    BackgroundBase.images[SceneName.outdoorHouse]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
+                    canvas.render(BackgroundBase.images[SceneName.outdoorHouse]!)
+                }                
+                renderArrows(to:canvas, leftArrow:true, rightArrow:true, downArrow:false, upArrow:false, leftLocation:Point(x:100, y:770),
+                             rightLocation:Point(x:780, y:670), upLocation:Point(x:9999, y:9999), downLocation:Point(x:9999, y:9999))
+                
+                rightScene = 2
+                renderText(to:canvas, x:860, y:746, text:"Play/Enter")
+                
+                leftScene = 0 
+                renderText(to:canvas, x:140, y:840, text:"Exit/Leave")
+
+                
+            case 2:
+                rightScene = 8
+                upScene = 3
+                if BackgroundBase.images[SceneName.entrance]!.isReady{
+                    BackgroundBase.images[SceneName.entrance]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
+                    canvas.render(BackgroundBase.images[SceneName.entrance]!)
+                } 
+                renderArrows(to:canvas, leftArrow:true, rightArrow:true, downArrow:false, upArrow:true, leftLocation:Point(x:100, y:770),
+                             rightLocation:Point(x:1200, y:600), upLocation:Point(x:900, y:600), downLocation:Point(x:100, y:600))
+                
+                renderLabel(to:canvas)
+                
+            case 3:
+                if BackgroundBase.images[SceneName.basementEntrance]!.isReady{
+                    BackgroundBase.images[SceneName.basementEntrance]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
+                    canvas.render(BackgroundBase.images[SceneName.basementEntrance]!)
+                }
+                
+                
+            case 4:
+                if BackgroundBase.images[SceneName.basementHall]!.isReady{
+                    BackgroundBase.images[SceneName.basementHall]!.renderMode = .destinationRect(Rect(topLeft:Point(x:0,y:0), size:canvasSize))
+                    canvas.render(BackgroundBase.images[SceneName.basementHall]!)
+                } 
+
+            case 5:
+                currentSceneName = SceneName.artifactRoom
+                
+            case 6:
+                currentSceneName = SceneName.exitHall
+            case 7:  
+                currentSceneName = SceneName.randomRoom
+            case 8:
+                currentSceneName = SceneName.rightEntrance 
+            default:
+                fatalError("Unexpected Scene")
+
+            }
+
+        }
+        print(currentScene)
     }
     
     override func boundingRect() -> Rect{
